@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FarmGuard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🌾 FarmGuard</h1>
+
+        <p class="subtitle">
+            Your AI-powered farm decision assistant
+        </p>
+
+        <div class="card">
+
+            <h2>Create Your Farm Profile</h2>
+
+            <form action="/save-profile" method="POST">
+
+                <label>Farmer Name</label>
+                <input
+                    type="text"
+                    name="farmer_name"
+                    placeholder="Enter your name"
+                    required
+                >
+
+                <label>Location</label>
+                <input
+                    type="text"
+                    name="location"
+                    placeholder="e.g. Pune"
+                    required
+                >
+
+                <label>Crop</label>
+                <input
+                    type="text"
+                    name="crop"
+                    placeholder="e.g. Cotton"
+                    required
+                >
+
+                <label>Farm Size (acres)</label>
+                <input
+                    type="number"
+                    name="farm_size"
+                    step="0.1"
+                    placeholder="e.g. 3"
+                    required
+                >
+
+                <label>Soil Type</label>
+
+                <select name="soil_type" required>
+                    <option value="">Select soil type</option>
+                    <option value="Black Soil">Black Soil</option>
+                    <option value="Red Soil">Red Soil</option>
+                    <option value="Alluvial Soil">Alluvial Soil</option>
+                    <option value="Sandy Soil">Sandy Soil</option>
+                    <option value="Clay Soil">Clay Soil</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label>Irrigation Method</label>
+
+                <select name="irrigation" required>
+                    <option value="">Select irrigation method</option>
+                    <option value="Drip">Drip</option>
+                    <option value="Sprinkler">Sprinkler</option>
+                    <option value="Flood">Flood</option>
+                    <option value="Rainfed">Rainfed</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label>Crop Growth Stage</label>
+
+                <select name="crop_stage" required>
+                    <option value="">Select crop stage</option>
+                    <option value="Sowing">Sowing</option>
+                    <option value="Germination">Germination</option>
+                    <option value="Vegetative">Vegetative</option>
+                    <option value="Flowering">Flowering</option>
+                    <option value="Fruiting">Fruiting</option>
+                    <option value="Harvesting">Harvesting</option>
+                </select>
+
+                <button type="submit">
+                    Create Farm Profile
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
