@@ -1,6 +1,35 @@
 from flask import Flask, render_template, request
+import sqlite3
 
 app = Flask(__name__)
+
+DATABASE = "farmguard.db"
+
+
+def get_db_connection():
+    connection = sqlite3.connect(DATABASE)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def init_database():
+    connection = get_db_connection()
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS farm_profile (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            farmer_name TEXT NOT NULL,
+            location TEXT NOT NULL,
+            crop TEXT NOT NULL,
+            farm_size REAL NOT NULL,
+            soil_type TEXT NOT NULL,
+            irrigation TEXT NOT NULL,
+            crop_stage TEXT NOT NULL
+        )
+    """)
+
+    connection.commit()
+    connection.close()
 
 
 @app.route("/")
@@ -19,21 +48,35 @@ def save_profile():
     irrigation = request.form["irrigation"]
     crop_stage = request.form["crop_stage"]
 
-    return f"""
-    <h1>Farm Profile Saved!</h1>
+    connection = get_db_connection()
 
-    <p>Farmer: {farmer_name}</p>
-    <p>Location: {location}</p>
-    <p>Crop: {crop}</p>
-    <p>Farm Size: {farm_size} acres</p>
-    <p>Soil: {soil_type}</p>
-    <p>Irrigation: {irrigation}</p>
-    <p>Crop Stage: {crop_stage}</p>
+    connection.execute("""
+        INSERT INTO farm_profile
+        (farmer_name, location, crop, farm_size, soil_type, irrigation, crop_stage)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        farmer_name,
+        location,
+        crop,
+        farm_size,
+        soil_type,
+        irrigation,
+        crop_stage
+    ))
 
-    <br>
-    <a href="/">Go Back</a>
-    """
+    connection.commit()
+
+    profile = connection.execute("""
+        SELECT * FROM farm_profile
+        ORDER BY id DESC
+        LIMIT 1
+    """).fetchone()
+
+    connection.close()
+
+    return render_template("dashboard.html", profile=profile)
 
 
 if __name__ == "__main__":
+    init_database()
     app.run(debug=True)
