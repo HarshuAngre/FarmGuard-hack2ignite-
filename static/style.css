@@ -70,3 +70,26 @@ button {
 button:hover {
     background: #256628;
 }
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.profile-item {
+    padding: 15px;
+    background: #f5f7f5;
+    border-radius: 8px;
+}
+
+.profile-item span {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.profile-item strong {
+    font-size: 16px;
+}

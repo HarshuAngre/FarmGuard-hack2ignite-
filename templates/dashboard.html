@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FarmGuard Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>FarmGuard</h1>
+
+        <p class="subtitle">
+            Farm management and decision support
+        </p>
+
+        <div class="card">
+
+            <h2>Farm Profile</h2>
+
+            <div class="profile-grid">
+
+                <div class="profile-item">
+                    <span>Farmer</span>
+                    <strong>{{ profile["farmer_name"] }}</strong>
+                </div>
+
+                <div class="profile-item">
+                    <span>Location</span>
+                    <strong>{{ profile["location"] }}</strong>
+                </div>
+
+                <div class="profile-item">
+                    <span>Crop</span>
+                    <strong>{{ profile["crop"] }}</strong>
+                </div>
+
+                <div class="profile-item">
+                    <span>Farm Size</span>
+                    <strong>{{ profile["farm_size"] }} acres</strong>
+                </div>
+
+                <div class="profile-item">
+                    <span>Soil Type</span>
+                    <strong>{{ profile["soil_type"] }}</strong>
+                </div>
+
+                <div class="profile-item">
+                    <span>Irrigation</span>
+                    <strong>{{ profile["irrigation"] }}</strong>
+                </div>
+
+                <div class="profile-item">
+                    <span>Crop Stage</span>
+                    <strong>{{ profile["crop_stage"] }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Today's Farm Assessment</h2>
+
+            <p>
+                Weather and crop analysis will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
