@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import sqlite3
 
 app = Flask(__name__)
@@ -65,6 +65,14 @@ def save_profile():
     ))
 
     connection.commit()
+    connection.close()
+
+    return redirect("/dashboard")
+@app.route("/dashboard")
+
+def dashboard():
+
+    connection = get_db_connection()
 
     profile = connection.execute("""
         SELECT * FROM farm_profile
@@ -73,6 +81,9 @@ def save_profile():
     """).fetchone()
 
     connection.close()
+
+    if profile is None:
+        return redirect("/")
 
     return render_template("dashboard.html", profile=profile)
 
