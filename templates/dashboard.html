@@ -71,7 +71,55 @@
             <h2>Today's Farm Assessment</h2>
 
             <p>
-                Weather and crop analysis will appear here.
+                {% if weather and coordinates %}
+
+<div class="weather-card">
+    <h2>Current Weather</h2>
+
+    <p class="weather-location">
+        {{ coordinates.name }}, {{ coordinates.country }}
+    </p>
+
+    <div class="weather-main">
+        <strong>{{ weather.current.temperature_2m }}°C</strong>
+    </div>
+
+    <div class="weather-details">
+        <p>Humidity: {{ weather.current.relative_humidity_2m }}%</p>
+        <p>Wind Speed: {{ weather.current.wind_speed_10m }} km/h</p>
+        <p>Precipitation: {{ weather.current.precipitation }} mm</p>
+    </div>
+
+    <p class="weather-source">
+        Weather data provided by Open-Meteo
+    </p>
+</div>
+
+{% else %}
+
+<div class="weather-card">
+    <h2>Weather Data</h2>
+    <p>Weather information could not be retrieved for this location.</p>
+</div>
+
+{% endif %}
+{% if recommendation %}
+
+<div class="recommendation-card">
+    <h2>FarmGuard Recommendation</h2>
+
+    <h3>{{ recommendation.recommendation }}</h3>
+
+    <h4>Why this recommendation?</h4>
+
+    <ul>
+        {% for reason in recommendation.reasons %}
+        <li>{{ reason }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endif %}
             </p>
 
         </div>

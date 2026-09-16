@@ -1,5 +1,9 @@
+import profile
+
 from flask import Flask, render_template, request, redirect
 import sqlite3
+from services.weather_service import get_coordinates, get_weather
+from services.decision_engine import generate_recommendation
 
 app = Flask(__name__)
 
@@ -70,8 +74,8 @@ def save_profile():
     return redirect("/dashboard")
 @app.route("/dashboard")
 
+@app.route("/dashboard")
 def dashboard():
-
     connection = get_db_connection()
 
     profile = connection.execute("""
@@ -85,7 +89,27 @@ def dashboard():
     if profile is None:
         return redirect("/")
 
-    return render_template("dashboard.html", profile=profile)
+    weather = None
+    coordinates = get_coordinates(profile["location"])
+
+    if coordinates:
+        weather = get_weather(
+            coordinates["latitude"],
+            coordinates["longitude"]
+        )
+
+    recommendation = None
+
+    if weather:
+        recommendation = generate_recommendation(profile, weather)
+
+    return render_template(
+        "dashboard.html",
+        profile=profile,
+        weather=weather,
+        coordinates=coordinates,
+        recommendation=recommendation
+    )
 
 
 if __name__ == "__main__":
