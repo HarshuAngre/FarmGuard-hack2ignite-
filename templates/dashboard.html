@@ -72,7 +72,11 @@
 
             <p>
                 {% if weather and coordinates %}
-
+{% if feedback_status == "saved" %}
+<div class="feedback-success">
+    Feedback recorded successfully.
+</div>
+{% endif %}
 <div class="weather-card">
     <h2>Current Weather</h2>
 
@@ -103,12 +107,37 @@
 </div>
 
 {% endif %}
+
+<div class="weather-outlook">
+    <h2>Weather Outlook</h2>
+
+    <p>Next 6 hours</p>
+
+    <div class="weather-details">
+        <p>
+            Rain Probability:
+            <strong>{{ rain_probability }}%</strong>
+        </p>
+
+        <p>
+            Expected Rainfall:
+            <strong>{{ "%.1f"|format(expected_rainfall) }} mm</strong>
+        </p>
+    </div>
+</div>
+
+
+
 {% if recommendation %}
 
 <div class="recommendation-card">
     <h2>FarmGuard Recommendation</h2>
 
     <h3>{{ recommendation.recommendation }}</h3>
+
+    <p>
+        Confidence: <strong>{{ recommendation.confidence }}</strong>
+    </p>
 
     <h4>Why this recommendation?</h4>
 
@@ -117,6 +146,40 @@
         <li>{{ reason }}</li>
         {% endfor %}
     </ul>
+
+    <div class="feedback-section">
+        <h4>What did you decide?</h4>
+
+        <form method="POST" action="/feedback">
+            <input
+                type="hidden"
+                name="profile_id"
+                value="{{ profile.id }}"
+            >
+
+            <input
+                type="hidden"
+                name="recommendation"
+                value="{{ recommendation.recommendation }}"
+            >
+
+            <button
+                type="submit"
+                name="decision"
+                value="Accept"
+            >
+                Accept Recommendation
+            </button>
+
+            <button
+                type="submit"
+                name="decision"
+                value="Override"
+            >
+                Override Recommendation
+            </button>
+        </form>
+    </div>
 </div>
 
 {% endif %}

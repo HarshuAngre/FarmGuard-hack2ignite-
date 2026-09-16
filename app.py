@@ -32,6 +32,17 @@ def init_database():
         )
     """)
 
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS farmer_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            recommendation TEXT NOT NULL,
+            decision TEXT NOT NULL,
+            reason TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     connection.commit()
     connection.close()
 
@@ -55,27 +66,28 @@ def save_profile():
     connection = get_db_connection()
 
     connection.execute("""
-        INSERT INTO farm_profile
-        (farmer_name, location, crop, farm_size, soil_type, irrigation, crop_stage)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (
-        farmer_name,
-        location,
-        crop,
-        farm_size,
-        soil_type,
-        irrigation,
-        crop_stage
-    ))
+    INSERT INTO farm_profile
+    (farmer_name, location, crop, farm_size, soil_type, irrigation, crop_stage)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+""", (
+    farmer_name,
+    location,
+    crop,
+    farm_size,
+    soil_type,
+    irrigation,
+    crop_stage
+))
 
     connection.commit()
     connection.close()
 
     return redirect("/dashboard")
-@app.route("/dashboard")
+
 
 @app.route("/dashboard")
 def dashboard():
+    feedback_status = request.args.get("feedback")
     connection = get_db_connection()
 
     profile = connection.execute("""
@@ -99,17 +111,55 @@ def dashboard():
         )
 
     recommendation = None
+    rain_probability = None
+    expected_rainfall = None
 
     if weather:
         recommendation = generate_recommendation(profile, weather)
+
+        rain_probability = max(
+            weather["hourly"]["precipitation_probability"][:6]
+        )
+
+        expected_rainfall = sum(
+            weather["hourly"]["precipitation"][:6]
+        )
 
     return render_template(
         "dashboard.html",
         profile=profile,
         weather=weather,
         coordinates=coordinates,
-        recommendation=recommendation
+        recommendation=recommendation,
+        rain_probability=rain_probability,
+        expected_rainfall=expected_rainfall,
+        feedback_status=feedback_status
     )
+
+@app.route("/feedback", methods=["POST"])
+def feedback():
+    profile_id = request.form["profile_id"]
+    recommendation = request.form["recommendation"]
+    decision = request.form["decision"]
+    reason = request.form.get("reason", "")
+
+    connection = get_db_connection()
+
+    connection.execute("""
+        INSERT INTO farmer_feedback
+        (profile_id, recommendation, decision, reason)
+        VALUES (?, ?, ?, ?)
+    """, (
+        profile_id,
+        recommendation,
+        decision,
+        reason
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/dashboard?feedback=saved")
 
 
 if __name__ == "__main__":
