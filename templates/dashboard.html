@@ -21,6 +21,18 @@
             Farm management and decision support
         </p>
 
+
+        <!-- Feedback Message -->
+
+        {% if feedback_status == "saved" %}
+        <div class="feedback-success">
+            Feedback recorded successfully.
+        </div>
+        {% endif %}
+
+
+        <!-- Farm Profile -->
+
         <div class="card">
 
             <h2>Farm Profile</h2>
@@ -66,124 +78,265 @@
 
         </div>
 
+
+        <!-- Today's Farm Assessment -->
+
         <div class="card">
 
             <h2>Today's Farm Assessment</h2>
 
-            <p>
-                {% if weather and coordinates %}
-{% if feedback_status == "saved" %}
-<div class="feedback-success">
-    Feedback recorded successfully.
-</div>
-{% endif %}
-<div class="weather-card">
-    <h2>Current Weather</h2>
 
-    <p class="weather-location">
-        {{ coordinates.name }}, {{ coordinates.country }}
-    </p>
+            <!-- Current Weather -->
 
-    <div class="weather-main">
-        <strong>{{ weather.current.temperature_2m }}°C</strong>
-    </div>
+            {% if weather and coordinates %}
 
-    <div class="weather-details">
-        <p>Humidity: {{ weather.current.relative_humidity_2m }}%</p>
-        <p>Wind Speed: {{ weather.current.wind_speed_10m }} km/h</p>
-        <p>Precipitation: {{ weather.current.precipitation }} mm</p>
-    </div>
+            <div class="weather-card">
 
-    <p class="weather-source">
-        Weather data provided by Open-Meteo
-    </p>
-</div>
+                <h2>Current Weather</h2>
 
-{% else %}
+                <p class="weather-location">
+                    {{ coordinates.name }}, {{ coordinates.country }}
+                </p>
 
-<div class="weather-card">
-    <h2>Weather Data</h2>
-    <p>Weather information could not be retrieved for this location.</p>
-</div>
+                <div class="weather-main">
+                    <strong>
+                        {{ weather.current.temperature_2m }}°C
+                    </strong>
+                </div>
 
-{% endif %}
+                <div class="weather-details">
 
-<div class="weather-outlook">
-    <h2>Weather Outlook</h2>
+                    <p>
+                        Humidity:
+                        {{ weather.current.relative_humidity_2m }}%
+                    </p>
 
-    <p>Next 6 hours</p>
+                    <p>
+                        Wind Speed:
+                        {{ weather.current.wind_speed_10m }} km/h
+                    </p>
 
-    <div class="weather-details">
-        <p>
-            Rain Probability:
-            <strong>{{ rain_probability }}%</strong>
-        </p>
+                    <p>
+                        Precipitation:
+                        {{ weather.current.precipitation }} mm
+                    </p>
 
-        <p>
-            Expected Rainfall:
-            <strong>{{ "%.1f"|format(expected_rainfall) }} mm</strong>
-        </p>
-    </div>
-</div>
+                </div>
+
+                <p class="weather-source">
+                    Weather data provided by Open-Meteo
+                </p>
+
+            </div>
+
+            {% else %}
+
+            <div class="weather-card">
+
+                <h2>Weather Data</h2>
+
+                <p>
+                    Weather information could not be retrieved
+                    for this location.
+                </p>
+
+            </div>
+
+            {% endif %}
 
 
+            <!-- Weather Outlook -->
 
-{% if recommendation %}
+            {% if weather %}
 
-<div class="recommendation-card">
-    <h2>FarmGuard Recommendation</h2>
+            <div class="weather-outlook">
 
-    <h3>{{ recommendation.recommendation }}</h3>
+                <h2>Weather Outlook</h2>
 
-    <p>
-        Confidence: <strong>{{ recommendation.confidence }}</strong>
-    </p>
+                <p>
+                    Next 6 hours
+                </p>
 
-    <h4>Why this recommendation?</h4>
+                <div class="weather-details">
 
-    <ul>
-        {% for reason in recommendation.reasons %}
-        <li>{{ reason }}</li>
-        {% endfor %}
-    </ul>
+                    <p>
+                        Rain Probability:
+                        <strong>
+                            {{ rain_probability }}%
+                        </strong>
+                    </p>
 
-    <div class="feedback-section">
-        <h4>What did you decide?</h4>
+                    <p>
+                        Expected Rainfall:
+                        <strong>
+                            {{ "%.1f"|format(expected_rainfall) }} mm
+                        </strong>
+                    </p>
 
-        <form method="POST" action="/feedback">
-            <input
-                type="hidden"
-                name="profile_id"
-                value="{{ profile.id }}"
-            >
+                </div>
 
-            <input
-                type="hidden"
-                name="recommendation"
-                value="{{ recommendation.recommendation }}"
-            >
+            </div>
 
-            <button
-                type="submit"
-                name="decision"
-                value="Accept"
-            >
-                Accept Recommendation
-            </button>
+            {% endif %}
 
-            <button
-                type="submit"
-                name="decision"
-                value="Override"
-            >
-                Override Recommendation
-            </button>
-        </form>
-    </div>
-</div>
 
-{% endif %}
-            </p>
+            <!-- FarmGuard Recommendation -->
+
+            {% if recommendation %}
+
+            <div class="recommendation-card">
+
+                <h2>FarmGuard Recommendation</h2>
+
+                <h3>
+                    {{ recommendation.recommendation }}
+                </h3>
+
+                <p>
+                    Confidence:
+                    <strong>
+                        {{ recommendation.confidence }}
+                    </strong>
+                </p>
+
+
+                <h4>Why this recommendation?</h4>
+
+                <ul>
+
+                    {% for reason in recommendation.reasons %}
+
+                    <li>
+                        {{ reason }}
+                    </li>
+
+                    {% endfor %}
+
+                </ul>
+
+
+                <!-- Farmer Feedback -->
+
+                <div class="feedback-section">
+
+                    <h4>What did you decide?</h4>
+
+
+                    <!-- Accept Recommendation -->
+
+                    <form method="POST" action="/feedback">
+
+                        <input
+                            type="hidden"
+                            name="profile_id"
+                            value="{{ profile.id }}"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="recommendation"
+                            value="{{ recommendation.recommendation }}"
+                        >
+
+                        <button
+                            type="submit"
+                            name="decision"
+                            value="Accept"
+                        >
+                            Accept Recommendation
+                        </button>
+
+                    </form>
+
+
+                    <!-- Override Button -->
+
+                    <button
+                        type="button"
+                        onclick="document.getElementById('override-reason').style.display='block';"
+                    >
+                        Override Recommendation
+                    </button>
+
+
+                    <!-- Override Form -->
+
+                    <div
+                        id="override-reason"
+                        style="display: none;"
+                    >
+
+                        <h4>
+                            Why are you overriding the recommendation?
+                        </h4>
+
+                        <form method="POST" action="/feedback">
+
+                            <input
+                                type="hidden"
+                                name="profile_id"
+                                value="{{ profile.id }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="recommendation"
+                                value="{{ recommendation.recommendation }}"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="decision"
+                                value="Override"
+                            >
+
+
+                            <select name="reason" required>
+
+                                <option value="">
+                                    Select a reason
+                                </option>
+
+                                <option value="Field is already wet">
+                                    Field is already wet
+                                </option>
+
+                                <option value="Field is dry">
+                                    Field is dry
+                                </option>
+
+                                <option value="Local weather differs">
+                                    Local weather differs
+                                </option>
+
+                                <option value="Soil condition">
+                                    Soil condition
+                                </option>
+
+                                <option value="Farmer experience">
+                                    Farmer experience
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+
+                            <button type="submit">
+                                Submit Override
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
 
         </div>
 
