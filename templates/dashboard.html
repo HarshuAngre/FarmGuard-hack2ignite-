@@ -4,344 +4,450 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>FarmGuard Dashboard</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <title>FarmGuard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-    <div class="container">
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-mark">F</div>
+        <div>
+            <h1>FarmGuard</h1>
+            <span>Farm decision support</span>
+        </div>
+    </div>
 
-        <h1>FarmGuard</h1>
+    <div class="header-location">
+        {% if coordinates %}
+            {{ coordinates.name }}, {{ coordinates.country }}
+        {% else %}
+            {{ profile["location"] }}
+        {% endif %}
+    </div>
+</header>
 
-        <p class="subtitle">
-            Farm management and decision support
+<main class="dashboard">
+
+    {% if weather_error %}
+    <div class="notice error-notice">
+        <strong>Weather data is temporarily unavailable</strong>
+        <span>Please refresh the dashboard in a moment.</span>
+    </div>
+    {% endif %}
+
+    {% if feedback_status == "saved" %}
+    <div class="notice success-notice">
+        <strong>Decision recorded</strong>
+        <span>Your feedback has been added to Farm Knowledge.</span>
+    </div>
+    {% endif %}
+
+    <section class="welcome">
+        <div>
+            <span class="eyebrow">TODAY'S FARM OVERVIEW</span>
+            <h2>Good day, {{ profile["farmer_name"] }}</h2>
+            <p>Here is the latest information available for your farm.</p>
+        </div>
+
+        <a href="/" class="secondary-button">Update Farm Profile</a>
+    </section>
+
+    <section class="profile-panel">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">YOUR FARM</span>
+                <h3>Farm Profile</h3>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+
+            <div class="profile-item">
+                <span>Farmer</span>
+                <strong>{{ profile["farmer_name"] }}</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Location</span>
+                <strong>{{ profile["location"] }}</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Crop</span>
+                <strong>{{ profile["crop"] }}</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Farm Size</span>
+                <strong>{{ profile["farm_size"] }} acres</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Soil</span>
+                <strong>{{ profile["soil_type"] }}</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Irrigation</span>
+                <strong>{{ profile["irrigation"] }}</strong>
+            </div>
+
+            <div class="profile-item">
+                <span>Crop Stage</span>
+                <strong>{{ profile["crop_stage"] }}</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+    {% if weather and coordinates %}
+
+    <section class="main-grid">
+
+        <div class="weather-panel">
+
+            <div class="panel-header">
+                <div>
+                    <span class="eyebrow">LIVE CONDITIONS</span>
+                    <h3>Current Weather</h3>
+                </div>
+
+                <span class="live-status">Updated</span>
+            </div>
+
+            <div class="temperature">
+                {{ weather.current.temperature_2m }}<sup>°C</sup>
+            </div>
+
+            <p class="weather-place">
+                {{ coordinates.name }}, {{ coordinates.country }}
+            </p>
+
+            <div class="weather-stats">
+
+                <div>
+                    <span>Humidity</span>
+                    <strong>{{ weather.current.relative_humidity_2m }}%</strong>
+                </div>
+
+                <div>
+                    <span>Wind</span>
+                    <strong>{{ weather.current.wind_speed_10m }} km/h</strong>
+                </div>
+
+                <div>
+                    <span>Rainfall</span>
+                    <strong>{{ weather.current.precipitation }} mm</strong>
+                </div>
+
+            </div>
+
+            <div class="source">
+                Weather data provided by Open-Meteo
+            </div>
+
+        </div>
+
+        <div class="outlook-panel">
+
+            <div class="panel-header">
+                <div>
+                    <span class="eyebrow">NEXT 6 HOURS</span>
+                    <h3>Weather Outlook</h3>
+                </div>
+            </div>
+
+            <div class="outlook-main">
+
+                <div>
+                    <span>Rain probability</span>
+                    <strong>{{ rain_probability }}%</strong>
+                </div>
+
+                <div>
+                    <span>Expected rainfall</span>
+                    <strong>{{ "%.1f"|format(expected_rainfall) }} mm</strong>
+                </div>
+
+            </div>
+
+            <div class="rain-bar">
+                <div class="rain-fill"></div>
+            </div>
+
+            <p class="outlook-note">
+                Rain probability and expected rainfall are used as part of today's farm assessment.
+            </p>
+
+        </div>
+
+    </section>
+
+    {% else %}
+
+    <section class="weather-unavailable">
+
+        <span class="eyebrow">WEATHER</span>
+
+        <h3>Weather information is unavailable</h3>
+
+        <p>
+            FarmGuard could not retrieve weather information for this location.
         </p>
 
+    </section>
 
-        <!-- Feedback Message -->
+    {% endif %}
+    {% if farm_condition %}
 
-        {% if feedback_status == "saved" %}
-        <div class="feedback-success">
-            Feedback recorded successfully.
-        </div>
-        {% endif %}
+<section class="condition-panel">
 
-
-        <!-- Farm Profile -->
-
-        <div class="card">
-
-            <h2>Farm Profile</h2>
-
-            <div class="profile-grid">
-
-                <div class="profile-item">
-                    <span>Farmer</span>
-                    <strong>{{ profile["farmer_name"] }}</strong>
-                </div>
-
-                <div class="profile-item">
-                    <span>Location</span>
-                    <strong>{{ profile["location"] }}</strong>
-                </div>
-
-                <div class="profile-item">
-                    <span>Crop</span>
-                    <strong>{{ profile["crop"] }}</strong>
-                </div>
-
-                <div class="profile-item">
-                    <span>Farm Size</span>
-                    <strong>{{ profile["farm_size"] }} acres</strong>
-                </div>
-
-                <div class="profile-item">
-                    <span>Soil Type</span>
-                    <strong>{{ profile["soil_type"] }}</strong>
-                </div>
-
-                <div class="profile-item">
-                    <span>Irrigation</span>
-                    <strong>{{ profile["irrigation"] }}</strong>
-                </div>
-
-                <div class="profile-item">
-                    <span>Crop Stage</span>
-                    <strong>{{ profile["crop_stage"] }}</strong>
-                </div>
-
-            </div>
-
+    <div class="condition-header">
+        <div>
+            <span class="eyebrow">FARM CONDITIONS</span>
+            <h3>What FarmGuard is seeing</h3>
         </div>
 
-
-        <!-- Today's Farm Assessment -->
-
-        <div class="card">
-
-            <h2>Today's Farm Assessment</h2>
-
-
-            <!-- Current Weather -->
-
-            {% if weather and coordinates %}
-
-            <div class="weather-card">
-
-                <h2>Current Weather</h2>
-
-                <p class="weather-location">
-                    {{ coordinates.name }}, {{ coordinates.country }}
-                </p>
-
-                <div class="weather-main">
-                    <strong>
-                        {{ weather.current.temperature_2m }}°C
-                    </strong>
-                </div>
-
-                <div class="weather-details">
-
-                    <p>
-                        Humidity:
-                        {{ weather.current.relative_humidity_2m }}%
-                    </p>
-
-                    <p>
-                        Wind Speed:
-                        {{ weather.current.wind_speed_10m }} km/h
-                    </p>
-
-                    <p>
-                        Precipitation:
-                        {{ weather.current.precipitation }} mm
-                    </p>
-
-                </div>
-
-                <p class="weather-source">
-                    Weather data provided by Open-Meteo
-                </p>
-
-            </div>
-
-            {% else %}
-
-            <div class="weather-card">
-
-                <h2>Weather Data</h2>
-
-                <p>
-                    Weather information could not be retrieved
-                    for this location.
-                </p>
-
-            </div>
-
-            {% endif %}
-
-
-            <!-- Weather Outlook -->
-
-            {% if weather %}
-
-            <div class="weather-outlook">
-
-                <h2>Weather Outlook</h2>
-
-                <p>
-                    Next 6 hours
-                </p>
-
-                <div class="weather-details">
-
-                    <p>
-                        Rain Probability:
-                        <strong>
-                            {{ rain_probability }}%
-                        </strong>
-                    </p>
-
-                    <p>
-                        Expected Rainfall:
-                        <strong>
-                            {{ "%.1f"|format(expected_rainfall) }} mm
-                        </strong>
-                    </p>
-
-                </div>
-
-            </div>
-
-            {% endif %}
-
-
-            <!-- FarmGuard Recommendation -->
-
-            {% if recommendation %}
-
-            <div class="recommendation-card">
-
-                <h2>FarmGuard Recommendation</h2>
-
-                <h3>
-                    {{ recommendation.recommendation }}
-                </h3>
-
-                <p>
-                    Confidence:
-                    <strong>
-                        {{ recommendation.confidence }}
-                    </strong>
-                </p>
-
-
-                <h4>Why this recommendation?</h4>
-
-                <ul>
-
-                    {% for reason in recommendation.reasons %}
-
-                    <li>
-                        {{ reason }}
-                    </li>
-
-                    {% endfor %}
-
-                </ul>
-
-
-                <!-- Farmer Feedback -->
-
-                <div class="feedback-section">
-
-                    <h4>What did you decide?</h4>
-
-
-                    <!-- Accept Recommendation -->
-
-                    <form method="POST" action="/feedback">
-
-                        <input
-                            type="hidden"
-                            name="profile_id"
-                            value="{{ profile.id }}"
-                        >
-
-                        <input
-                            type="hidden"
-                            name="recommendation"
-                            value="{{ recommendation.recommendation }}"
-                        >
-
-                        <button
-                            type="submit"
-                            name="decision"
-                            value="Accept"
-                        >
-                            Accept Recommendation
-                        </button>
-
-                    </form>
-
-
-                    <!-- Override Button -->
-
-                    <button
-                        type="button"
-                        onclick="document.getElementById('override-reason').style.display='block';"
-                    >
-                        Override Recommendation
-                    </button>
-
-
-                    <!-- Override Form -->
-
-                    <div
-                        id="override-reason"
-                        style="display: none;"
-                    >
-
-                        <h4>
-                            Why are you overriding the recommendation?
-                        </h4>
-
-                        <form method="POST" action="/feedback">
-
-                            <input
-                                type="hidden"
-                                name="profile_id"
-                                value="{{ profile.id }}"
-                            >
-
-                            <input
-                                type="hidden"
-                                name="recommendation"
-                                value="{{ recommendation.recommendation }}"
-                            >
-
-                            <input
-                                type="hidden"
-                                name="decision"
-                                value="Override"
-                            >
-
-
-                            <select name="reason" required>
-
-                                <option value="">
-                                    Select a reason
-                                </option>
-
-                                <option value="Field is already wet">
-                                    Field is already wet
-                                </option>
-
-                                <option value="Field is dry">
-                                    Field is dry
-                                </option>
-
-                                <option value="Local weather differs">
-                                    Local weather differs
-                                </option>
-
-                                <option value="Soil condition">
-                                    Soil condition
-                                </option>
-
-                                <option value="Farmer experience">
-                                    Farmer experience
-                                </option>
-
-                                <option value="Other">
-                                    Other
-                                </option>
-
-                            </select>
-
-
-                            <button type="submit">
-                                Submit Override
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            {% endif %}
-
+        <span class="condition-date">Current assessment</span>
+    </div>
+
+    <div class="condition-grid">
+
+        <div class="condition-item">
+            <span>Weather</span>
+            <strong>{{ farm_condition.weather_status }}</strong>
+            <p>{{ farm_condition.weather_detail }}</p>
+        </div>
+
+        <div class="condition-item">
+            <span>Moisture</span>
+            <strong>{{ farm_condition.moisture_status }}</strong>
+            <p>{{ farm_condition.moisture_detail }}</p>
+        </div>
+
+        <div class="condition-item">
+            <span>Crop</span>
+            <strong>{{ farm_condition.crop }}</strong>
+            <p>{{ farm_condition.stage }} stage</p>
+        </div>
+
+        <div class="condition-item">
+            <span>Soil</span>
+            <strong>{{ farm_condition.soil }}</strong>
+            <p>Current farm soil profile</p>
         </div>
 
     </div>
 
-</body>
+</section>
 
+{% endif %}
+
+    {% if recommendation %}
+
+    <section class="recommendation-panel">
+
+        <div class="recommendation-top">
+
+            <div>
+                <span class="eyebrow">FARMGUARD ASSESSMENT</span>
+                <h3>Today's Recommendation</h3>
+            </div>
+
+            <div class="confidence">
+                <span>Confidence</span>
+                <strong>{{ recommendation.confidence }}</strong>
+            </div>
+
+        </div>
+
+        <div class="recommendation-content">
+
+            <div class="recommendation-message">
+                <span>Based on current conditions</span>
+
+                <h2>
+                    {{ recommendation.recommendation }}
+                </h2>
+            </div>
+
+            <div class="reason-panel">
+
+                <div class="reason-heading">
+                    WHY THIS RECOMMENDATION
+                </div>
+
+                <ul>
+                    {% for reason in recommendation.reasons %}
+                    <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="decision-area">
+
+            <div>
+                <span class="decision-label">YOUR DECISION</span>
+
+                <p>
+                    FarmGuard provides a recommendation. The final decision remains with you.
+                </p>
+            </div>
+
+            <div class="decision-buttons">
+
+                <form method="POST" action="/feedback">
+                    <input type="hidden" name="profile_id" value="{{ profile.id }}">
+                    <input type="hidden" name="recommendation" value="{{ recommendation.recommendation }}">
+
+                    <button
+                        type="submit"
+                        name="decision"
+                        value="Accept"
+                        class="accept-button">
+                        Accept Recommendation
+                    </button>
+                </form>
+
+                <button
+                    type="button"
+                    class="override-button"
+                    onclick="document.getElementById('override-reason').style.display='block'; this.style.display='none';">
+                    Override
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="override-reason" class="override-panel">
+
+            <div>
+                <span class="decision-label">OVERRIDE RECOMMENDATION</span>
+
+                <p>
+                    Tell FarmGuard what influenced your decision.
+                </p>
+            </div>
+
+            <form method="POST" action="/feedback" class="override-form">
+
+                <input type="hidden" name="profile_id" value="{{ profile.id }}">
+                <input type="hidden" name="recommendation" value="{{ recommendation.recommendation }}">
+                <input type="hidden" name="decision" value="Override">
+
+                <select name="reason" required>
+                    <option value="">Select a reason</option>
+                    <option value="Field is already wet">Field is already wet</option>
+                    <option value="Field is dry">Field is dry</option>
+                    <option value="Local weather differs">Local weather differs</option>
+                    <option value="Soil condition">Soil condition</option>
+                    <option value="Farmer experience">Farmer experience</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <button
+                    type="submit"
+                    class="submit-button">
+                    Submit Override
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+    <section class="knowledge-panel">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="eyebrow">FARM HISTORY</span>
+                <h3>Farm Knowledge</h3>
+            </div>
+
+            <span class="knowledge-count">
+                {% if feedback_history %}
+                    {{ feedback_history|length }} recent decisions
+                {% else %}
+                    No decisions yet
+                {% endif %}
+            </span>
+
+        </div>
+
+        {% if feedback_history %}
+
+        <div class="history-list">
+
+            {% for feedback in feedback_history %}
+
+            <div class="history-item">
+
+                <div class="history-status {{ feedback['decision']|lower }}">
+                    {% if feedback["decision"] == "Accept" %}
+                        Accepted
+                    {% else %}
+                        Override
+                    {% endif %}
+                </div>
+
+                <div class="history-details">
+
+                    <strong>
+                        {{ feedback["recommendation"] }}
+                    </strong>
+
+                    {% if feedback["reason"] %}
+                    <span>
+                        {{ feedback["reason"] }}
+                    </span>
+                    {% endif %}
+
+                    <small>
+                        {{ feedback["created_at"] }}
+                    </small>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-history">
+
+            <h4>No farmer decisions recorded yet</h4>
+
+            <p>
+                Your decisions and override reasons will appear here as you use FarmGuard.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+    <footer>
+        <span>FarmGuard</span>
+        <span>Decision support for smarter farming</span>
+    </footer>
+
+</main>
+
+</body>
 </html>

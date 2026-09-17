@@ -1,19 +1,21 @@
-import profile
-
 from flask import Flask, render_template, request, redirect
 import sqlite3
+
 from services.weather_service import get_coordinates, get_weather
-from services.decision_engine import generate_recommendation
+from services.decision_engine import generate_recommendation, generate_farm_condition
+
 
 app = Flask(__name__)
 
 DATABASE = "farmguard.db"
 
 
+
 def get_db_connection():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
     return connection
+
 
 
 def init_database():
@@ -31,6 +33,7 @@ def init_database():
             crop_stage TEXT NOT NULL
         )
     """)
+
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS farmer_feedback (
@@ -66,18 +69,26 @@ def save_profile():
     connection = get_db_connection()
 
     connection.execute("""
-    INSERT INTO farm_profile
-    (farmer_name, location, crop, farm_size, soil_type, irrigation, crop_stage)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-""", (
-    farmer_name,
-    location,
-    crop,
-    farm_size,
-    soil_type,
-    irrigation,
-    crop_stage
-))
+        INSERT INTO farm_profile
+        (
+            farmer_name,
+            location,
+            crop,
+            farm_size,
+            soil_type,
+            irrigation,
+            crop_stage
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        farmer_name,
+        location,
+        crop,
+        farm_size,
+        soil_type,
+        irrigation,
+        crop_stage
+    ))
 
     connection.commit()
     connection.close()
@@ -87,21 +98,36 @@ def save_profile():
 
 @app.route("/dashboard")
 def dashboard():
+
     feedback_status = request.args.get("feedback")
+
     connection = get_db_connection()
 
     profile = connection.execute("""
-        SELECT * FROM farm_profile
+        SELECT *
+        FROM farm_profile
         ORDER BY id DESC
         LIMIT 1
     """).fetchone()
 
-    connection.close()
 
     if profile is None:
+        connection.close()
         return redirect("/")
 
+    feedback_history = connection.execute("""
+        SELECT *
+        FROM farmer_feedback
+        WHERE profile_id = ?
+        ORDER BY id DESC
+        LIMIT 5
+    """, (profile["id"],)).fetchall()
+
+    connection.close()
+
+
     weather = None
+    weather_error = False
     coordinates = get_coordinates(profile["location"])
 
     if coordinates:
@@ -109,45 +135,83 @@ def dashboard():
             coordinates["latitude"],
             coordinates["longitude"]
         )
+        if weather is None:
+            weather_error = True
+
 
     recommendation = None
+    farm_condition = None
     rain_probability = None
     expected_rainfall = None
 
     if weather:
-        recommendation = generate_recommendation(profile, weather)
+
+        recommendation = generate_recommendation(
+            profile,
+            weather,
+            feedback_history
+        )
+        farm_condition = generate_farm_condition(
+            profile,
+            weather
+        )
 
         rain_probability = max(
             weather["hourly"]["precipitation_probability"][:6]
         )
 
+        # Expected rainfall during next 6 hours
         expected_rainfall = sum(
             weather["hourly"]["precipitation"][:6]
         )
 
+
     return render_template(
         "dashboard.html",
+
         profile=profile,
+
         weather=weather,
+
         coordinates=coordinates,
+
         recommendation=recommendation,
+        farm_condition=farm_condition,
+
         rain_probability=rain_probability,
+
         expected_rainfall=expected_rainfall,
-        feedback_status=feedback_status
+
+        feedback_status=feedback_status,
+
+        feedback_history=feedback_history,
+        weather_error=weather_error,
     )
+
+
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
+
     profile_id = request.form["profile_id"]
+
     recommendation = request.form["recommendation"]
+
     decision = request.form["decision"]
+
     reason = request.form.get("reason", "")
+
 
     connection = get_db_connection()
 
     connection.execute("""
         INSERT INTO farmer_feedback
-        (profile_id, recommendation, decision, reason)
+        (
+            profile_id,
+            recommendation,
+            decision,
+            reason
+        )
         VALUES (?, ?, ?, ?)
     """, (
         profile_id,
@@ -163,5 +227,7 @@ def feedback():
 
 
 if __name__ == "__main__":
+
     init_database()
+
     app.run(debug=True)

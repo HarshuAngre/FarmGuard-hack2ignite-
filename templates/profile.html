@@ -4,106 +4,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>FarmGuard</title>
-
+    <title>FarmGuard | Farm Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
-<body>
+<body class="profile-page">
 
-    <div class="container">
+<header class="profile-topbar">
+    <div class="brand">
+        <div class="brand-mark">F</div>
+        <div>
+            <h1>FarmGuard</h1>
+            <span>Farm decision support</span>
+        </div>
+    </div>
 
-        <h1>FarmGuard</h1>
+    <span class="topbar-label">Farm setup</span>
+</header>
 
-        <p class="subtitle">
-            Farm management and decision support
+<main class="profile-container">
+
+    <section class="profile-intro">
+        <span class="eyebrow">WELCOME TO FARMGUARD</span>
+
+        <h2>Tell us about your farm.</h2>
+
+        <p>
+            Add a few details about your farm so FarmGuard can understand
+            your crops, soil and irrigation conditions.
         </p>
+    </section>
 
-        <div class="card">
+    <section class="profile-form-card">
 
-            <h2>Create Your Farm Profile</h2>
+        <div class="form-header">
+            <div>
+                <span class="eyebrow">FARM PROFILE</span>
+                <h3>Farm information</h3>
+            </div>
 
-            <form action="/save-profile" method="POST">
+            <span class="step-label">01</span>
+        </div>
 
-                <label>Farmer Name</label>
-                <input
-                    type="text"
-                    name="farmer_name"
-                    placeholder="Enter your name"
-                    required
-                >
+        <form method="POST" action="/save-profile">
 
-                <label>Location</label>
-                <input
-                    type="text"
-                    name="location"
-                    placeholder="e.g. Pune"
-                    required
-                >
+            <div class="form-grid">
 
-                <label>Crop</label>
-                <input
-                    type="text"
-                    name="crop"
-                    placeholder="e.g. Cotton"
-                    required
-                >
+                <div class="form-group">
+                    <label for="farmer_name">Farmer Name</label>
 
-                <label>Farm Size (acres)</label>
-                <input
-                    type="number"
-                    name="farm_size"
-                    step="0.1"
-                    placeholder="e.g. 3"
-                    required
-                >
+                    <input
+                        type="text"
+                        id="farmer_name"
+                        name="farmer_name"
+                        placeholder="Enter your name"
+                        required>
+                </div>
 
-                <label>Soil Type</label>
+                <div class="form-group">
+                    <label for="location">Location</label>
 
-                <select name="soil_type" required>
-                    <option value="">Select soil type</option>
-                    <option value="Black Soil">Black Soil</option>
-                    <option value="Red Soil">Red Soil</option>
-                    <option value="Alluvial Soil">Alluvial Soil</option>
-                    <option value="Sandy Soil">Sandy Soil</option>
-                    <option value="Clay Soil">Clay Soil</option>
-                    <option value="Other">Other</option>
-                </select>
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        placeholder="City or village"
+                        required>
+                </div>
 
-                <label>Irrigation Method</label>
+                <div class="form-group">
+                    <label for="crop">Crop</label>
 
-                <select name="irrigation" required>
-                    <option value="">Select irrigation method</option>
-                    <option value="Drip">Drip</option>
-                    <option value="Sprinkler">Sprinkler</option>
-                    <option value="Flood">Flood</option>
-                    <option value="Rainfed">Rainfed</option>
-                    <option value="Other">Other</option>
-                </select>
+                    <input
+                        type="text"
+                        id="crop"
+                        name="crop"
+                        placeholder="For example, Wheat"
+                        required>
+                </div>
 
-                <label>Crop Growth Stage</label>
+                <div class="form-group">
+                    <label for="farm_size">Farm Size</label>
 
-                <select name="crop_stage" required>
-                    <option value="">Select crop stage</option>
-                    <option value="Sowing">Sowing</option>
-                    <option value="Germination">Germination</option>
-                    <option value="Vegetative">Vegetative</option>
-                    <option value="Flowering">Flowering</option>
-                    <option value="Fruiting">Fruiting</option>
-                    <option value="Harvesting">Harvesting</option>
-                </select>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            id="farm_size"
+                            name="farm_size"
+                            placeholder="0"
+                            min="0"
+                            step="0.1"
+                            required>
 
-                <button type="submit">
+                        <span>acres</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="soil_type">Soil Type</label>
+
+                    <select id="soil_type" name="soil_type" required>
+                        <option value="">Select soil type</option>
+                        <option value="Black">Black</option>
+                        <option value="Red">Red</option>
+                        <option value="Alluvial">Alluvial</option>
+                        <option value="Sandy">Sandy</option>
+                        <option value="Clay">Clay</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="irrigation">Irrigation</label>
+
+                    <select id="irrigation" name="irrigation" required>
+                        <option value="">Select irrigation method</option>
+                        <option value="Drip">Drip</option>
+                        <option value="Sprinkler">Sprinkler</option>
+                        <option value="Flood">Flood</option>
+                        <option value="Rainfed">Rainfed</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="crop_stage">Crop Growth Stage</label>
+
+                    <select id="crop_stage" name="crop_stage" required>
+                        <option value="">Select current crop stage</option>
+                        <option value="Sowing">Sowing</option>
+                        <option value="Germination">Germination</option>
+                        <option value="Vegetative">Vegetative</option>
+                        <option value="Flowering">Flowering</option>
+                        <option value="Fruiting">Fruiting</option>
+                        <option value="Harvesting">Harvesting</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-footer">
+
+                <div class="form-note">
+                    <strong>Why do we ask?</strong>
+
+                    <span>
+                        These details help FarmGuard make recommendations
+                        based on your farm's actual conditions.
+                    </span>
+                </div>
+
+                <button type="submit" class="profile-submit">
                     Create Farm Profile
                 </button>
 
-            </form>
+            </div>
 
+        </form>
+
+    </section>
+
+    <section class="profile-features">
+
+        <div>
+            <span class="feature-number">01</span>
+
+            <div>
+                <strong>Understand</strong>
+                <p>FarmGuard considers your crop, soil and irrigation.</p>
+            </div>
         </div>
 
-    </div>
+        <div>
+            <span class="feature-number">02</span>
+
+            <div>
+                <strong>Assess</strong>
+                <p>Current weather is combined with your farm context.</p>
+            </div>
+        </div>
+
+        <div>
+            <span class="feature-number">03</span>
+
+            <div>
+                <strong>Decide</strong>
+                <p>You remain in control of every farm decision.</p>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="profile-footer">
+    <span>FarmGuard</span>
+    <span>Decision support for smarter farming</span>
+</footer>
 
 </body>
-
 </html>
